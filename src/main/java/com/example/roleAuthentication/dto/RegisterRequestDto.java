@@ -1,7 +1,6 @@
 package com.example.roleAuthentication.dto;
 
 import com.example.roleAuthentication.model.Role;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
