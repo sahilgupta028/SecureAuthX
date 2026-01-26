@@ -58,32 +58,39 @@ com.example.security
 │
 ├── config
 │   ├── SecurityConfig.java
-│   ├── JwtAuthFilter.java
-│   ├── JwtAuthEntryPoint.java
-│   └── JwtAccessDeniedHandler.java
+│   ├── PasswordConfig.java
 │
 ├── controller
 │   ├── AuthController.java
-│   └── TestController.java
+│   ├── AdminController.java
+│   └── UserController.java
 │
 ├── entity
 │   ├── User.java
-│   └── Role.java
+│   └── ErrorResponse.java
 │
 ├── repository
 │   ├── UserRepository.java
-│   └── RoleRepository.java
 │
-├── security
+├── util
 │   └── JwtUtil.java
+│
+├── filter
+│   └── JwtAuthFilter.java
+│
+├── model
+│   └── Role.java
 │
 ├── exception
 │   ├── GlobalExceptionHandler.java
-│   └── CustomException.java
+│   ├── JwtAccessDeniedHandler.java
+│   ├── JwtAuthEntryPoint.java
+│   └── ValidationExceptionHandler.java
 │
 └── dto
-    ├── RegisterRequest.java
-    └── LoginRequest.java
+    ├── RegisterRequestDto.java
+    ├── LoginRequestDto.java
+    └── AuthResponseDto.java
 ```
 
 ---
