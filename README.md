@@ -181,13 +181,48 @@ public String adminOnly() {
 
 ---
 
-## 🔒 Security Best Practices Followed
+## 🔒 Security Best Practices Implemented
 
-* Encrypted passwords (BCrypt)
-* JWT signed with 256-bit secret key
-* No session storage
-* Role-based access checks
-* Centralized exception handling
+### 🔐 Password Security
+- Passwords are encrypted using **BCrypt**
+- Plain-text passwords are **never stored or logged**
+- Secure one-way hashing with automatic **salt generation**
+
+### 🔑 JWT-Based Stateless Authentication
+- Authentication implemented using **JWT (JSON Web Tokens)**
+- No server-side session storage
+- Each request is independently authenticated using JWT
+
+### 🛡 Strong JWT Signing
+- Tokens are signed using a **256-bit secret key (HS256)**
+- Token tampering is automatically detected and rejected
+
+### 🧩 Role-Based Access Control (RBAC)
+- API access is restricted based on user roles
+- Roles are injected into the **Spring Security context**
+- Fine-grained authorization for protected endpoints
+
+### 🚫 Account Lockout Protection
+- User account is automatically locked after **5 consecutive failed login attempts**
+- Prevents brute-force and credential-stuffing attacks
+
+### 🔄 JWT Token Blacklisting
+- JWT tokens are invalidated on logout
+- Blacklisted tokens are checked on **every request**
+- Prevents reuse of compromised or logged-out tokens
+
+### ⚠️ Centralized Exception Handling
+- Custom, consistent API responses for authentication and authorization errors
+- No stack traces or sensitive internal data exposed to clients
+
+### ✅ Input Validation
+- Input validation enforced using **Jakarta Bean Validation**
+- Validation applied at the controller level
+- Protects against malformed or malicious requests
+
+### 🔍 Secure Request Filtering
+- Custom **JWT authentication filter** validates tokens before controller execution
+- Invalid or expired tokens are rejected early in the request lifecycle
 
 ---
 
@@ -195,7 +230,6 @@ public String adminOnly() {
 
 * Refresh Token flow
 * Token revocation
-* Account lock on failed attempts
 * OAuth2 / Social Login
 
 ---
