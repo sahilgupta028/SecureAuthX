@@ -17,7 +17,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
+
+import static com.example.roleAuthentication.model.SecurityConstants.LOCK_TIME_MINUTES;
+import static com.example.roleAuthentication.model.SecurityConstants.MAX_FAILED_ATTEMPTS;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -53,11 +57,50 @@ public class AuthController {
     public AuthResponseDto login(@Valid @RequestBody LoginRequestDto req) {
 
         User user = userRepository.findByEmail(req.email)
-                .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("User not found"));
+                .orElseThrow(() ->
+                        new GlobalExceptionHandler.ResourceNotFoundException("User not found"));
 
+        // 🔒 Check if account is locked
+        if (user.isAccountLocked()) {
+
+            // ⏱ Auto-unlock if lock time expired
+            if (user.getLockTime() != null &&
+                    user.getLockTime().plusMinutes(LOCK_TIME_MINUTES).isBefore(LocalDateTime.now())) {
+
+                user.setAccountLocked(false);
+                user.setFailedAttempts(0);
+                user.setLockTime(null);
+                userRepository.save(user);
+
+            } else {
+                throw new GlobalExceptionHandler.UnauthorizedException(
+                        "Account locked due to multiple failed attempts. Try again later."
+                );
+            }
+        }
+
+        // ❌ Password mismatch
         if (!passwordEncoder.matches(req.password, user.getPassword())) {
+
+            int attempts = user.getFailedAttempts() + 1;
+            user.setFailedAttempts(attempts);
+
+            // 🔐 Lock account after max attempts
+            if (attempts >= MAX_FAILED_ATTEMPTS) {
+                user.setAccountLocked(true);
+                user.setLockTime(LocalDateTime.now());
+            }
+
+            userRepository.save(user);
+
             throw new GlobalExceptionHandler.UnauthorizedException("Invalid email or password");
         }
+
+        // ✅ Successful login → reset security counters
+        user.setFailedAttempts(0);
+        user.setAccountLocked(false);
+        user.setLockTime(null);
+        userRepository.save(user);
 
         AuthResponseDto response = new AuthResponseDto();
         response.accessToken = jwtUtil.generateToken(user);

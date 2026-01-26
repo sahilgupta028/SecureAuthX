@@ -4,6 +4,7 @@ import com.example.roleAuthentication.entity.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -37,6 +38,17 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(
                         404,
                         "Not Found",
+                        ex.getMessage(),
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ErrorResponse> handleLockedException(LockedException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.LOCKED)
+                .body(new ErrorResponse(
+                        HttpStatus.LOCKED.value(),
+                        "ACCOUNT_LOCKED",
                         ex.getMessage(),
                         request.getRequestURI()
                 ));
