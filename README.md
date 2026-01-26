@@ -1,57 +1,63 @@
-# 🔐 Spring Boot Role-Based Authentication (JWT)
+# 🔐 Spring Boot Role-Based Authentication System (JWT)
 
-This project demonstrates a **complete Role-Based Authentication & Authorization system** built with **Spring Boot, Spring Security, JWT**, and **MySQL**. It includes **custom error responses**, **secure password handling**, and is fully **testable using Postman**.
+A **production-grade Role-Based Authentication & Authorization system** built using **Spring Boot, Spring Security, JWT**, and **MongoDB/MySQL**.
+This project follows **enterprise-level security standards** and demonstrates real-world backend architecture including secure authentication flows, role-based access, centralized exception handling, and stateless security design.
+
+> Designed for **real-world applications**, **enterprise projects**, and **placement-ready backend systems**.
 
 ---
 
-## 🚀 Features Implemented
+## 🚀 Core Capabilities
 
-### ✅ Authentication
+### 🔑 Authentication
 
-* User **Registration**
-* User **Login** with JWT
-* Password encryption using **BCrypt**
+* Secure user **registration & login**
+* **BCrypt password hashing**
 * Email uniqueness validation
+* JWT token generation
 
-### ✅ Authorization
+### 🧩 Authorization
 
-* **Role-based access control** (e.g. `ROLE_USER`, `ROLE_ADMIN`)
+* **Role-Based Access Control (RBAC)** (`ROLE_USER`, `ROLE_ADMIN`)
 * Method-level security using `@PreAuthorize`
-* Secure endpoint protection using JWT
+* Endpoint-level access protection
 
-### ✅ Security
+### 🛡 Security Architecture
 
-* Stateless authentication (`STATELESS` session policy)
+* Stateless authentication (`SessionCreationPolicy.STATELESS`)
 * Custom JWT filter (`JwtAuthFilter`)
-* Secure **256-bit JWT signing key** (RFC 7518 compliant)
+* RFC 7518 compliant **256-bit JWT signing key**
+* Token validation & tamper detection
 
-### ✅ Error Handling (Custom Responses)
+### ⚠️ Error Handling
 
-* Custom authentication error response (401)
-* Custom access denied response (403)
-* Global exception handling using `@ControllerAdvice`
-* Consistent error JSON format
+* Custom authentication error handler (401)
+* Custom authorization handler (403)
+* Global exception handling (`@ControllerAdvice`)
+* Standardized error response format
 
-### ✅ Testing
+### 🧪 API Testing
 
-* Fully testable via **Postman**
-* Step-by-step API flow (Register → Login → Access Protected APIs)
+* Fully testable using **Postman**
+* End-to-end flow: Register → Login → Access APIs
 
 ---
 
 ## 🧱 Tech Stack
 
-* Java 17+
-* Spring Boot
-* Spring Security
-* JWT (jjwt)
-* Spring Data JPA
-* MongoDB
-* Postman
+| Layer       | Technology      |
+| ----------- | --------------- |
+| Language    | Java 17+        |
+| Framework   | Spring Boot     |
+| Security    | Spring Security |
+| Auth        | JWT (jjwt)      |
+| ORM         | Spring Data JPA |
+| Database    | MongoDB / MySQL |
+| API Testing | Postman         |
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Architecture
 
 ```
 com.example.roleAuthentication
@@ -100,7 +106,7 @@ com.example.roleAuthentication
 
 ## 🔑 API Endpoints
 
-### 🔹 Register User
+### 📝 Register User
 
 `POST /api/auth/register`
 
@@ -114,7 +120,7 @@ com.example.roleAuthentication
 
 ---
 
-### 🔹 Login User
+### 🔐 Login User
 
 `POST /api/auth/login`
 
@@ -125,7 +131,7 @@ com.example.roleAuthentication
 }
 ```
 
-📌 Response:
+Response:
 
 ```json
 {
@@ -135,9 +141,9 @@ com.example.roleAuthentication
 
 ---
 
-### 🔹 Access Protected Endpoint
+### 🔒 Access Secured Endpoint
 
-Add Header in Postman:
+Header:
 
 ```
 Authorization: Bearer <JWT_TOKEN>
@@ -148,7 +154,7 @@ Example:
 
 ---
 
-### 🔹 Admin Only Endpoint
+### 🛑 Admin-Only Endpoint
 
 ```java
 @PreAuthorize("hasRole('ADMIN')")
@@ -160,7 +166,7 @@ public String adminOnly() {
 
 ---
 
-## ❌ Custom Error Response Format
+## ❌ Standard Error Response Format
 
 ```json
 {
@@ -174,71 +180,47 @@ public String adminOnly() {
 
 ---
 
-## 🧪 How to Test in Postman (Flow)
+## 🔒 Security Best Practices
 
-1. **Register User** → `/api/auth/register`
-2. **Login** → `/api/auth/login`
-3. Copy JWT token
-4. Add token in Authorization Header
-5. Access secured APIs
-
----
-
-## 🔒 Security Best Practices Implemented
-
-### 🔐 Password Security
-- Passwords are encrypted using **BCrypt**
-- Plain-text passwords are **never stored or logged**
-- Secure one-way hashing with automatic **salt generation**
-
-### 🔑 JWT-Based Stateless Authentication
-- Authentication implemented using **JWT (JSON Web Tokens)**
-- No server-side session storage
-- Each request is independently authenticated using JWT
-
-### 🛡 Strong JWT Signing
-- Tokens are signed using a **256-bit secret key (HS256)**
-- Token tampering is automatically detected and rejected
-
-### 🧩 Role-Based Access Control (RBAC)
-- API access is restricted based on user roles
-- Roles are injected into the **Spring Security context**
-- Fine-grained authorization for protected endpoints
-
-### 🚫 Account Lockout Protection
-- User account is automatically locked after **5 consecutive failed login attempts**
-- Prevents brute-force and credential-stuffing attacks
-
-### 🔄 JWT Token Blacklisting
-- JWT tokens are invalidated on logout
-- Blacklisted tokens are checked on **every request**
-- Prevents reuse of compromised or logged-out tokens
-
-### ⚠️ Centralized Exception Handling
-- Custom, consistent API responses for authentication and authorization errors
-- No stack traces or sensitive internal data exposed to clients
-
-### ✅ Input Validation
-- Input validation enforced using **Jakarta Bean Validation**
-- Validation applied at the controller level
-- Protects against malformed or malicious requests
-
-### 🔍 Secure Request Filtering
-- Custom **JWT authentication filter** validates tokens before controller execution
-- Invalid or expired tokens are rejected early in the request lifecycle
+* BCrypt password encryption with salting
+* No plain-text password storage
+* Stateless JWT authentication
+* Secure HS256 token signing (256-bit key)
+* Role-based API access control
+* Account lockout after failed attempts
+* JWT token blacklisting
+* Centralized exception handling
+* Jakarta Bean Validation
+* Secure request filtering
 
 ---
 
-## 📌 Future Enhancements
+## 🧪 Postman Testing Flow
 
-* Refresh Token flow
-* Token revocation
-* OAuth2 / Social Login
+1. Register → `/api/auth/register`
+2. Login → `/api/auth/login`
+3. Copy JWT Token
+4. Add Authorization Header
+5. Access protected APIs
+
+---
+
+## 📌 Roadmap / Future Enhancements
+
+* Refresh token mechanism
+* Token revocation strategy
+* OAuth2 integration
+* Social login (Google/GitHub)
+* Multi-factor authentication (MFA)
+* API rate limiting
 
 ---
 
 ## 👨‍💻 Author
 
 **Sahil Gupta**
+Backend Developer | Java | Spring Boot | Security Architecture
 
-Feel free to extend this project or integrate it into real-world applications 🚀
+---
+
+⭐ If you find this project useful, consider giving it a star and using it as a production template.
