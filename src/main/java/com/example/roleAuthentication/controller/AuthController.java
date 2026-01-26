@@ -1,13 +1,16 @@
 package com.example.roleAuthentication.controller;
 
+import com.example.roleAuthentication.entity.BlacklistedToken;
 import com.example.roleAuthentication.exception.GlobalExceptionHandler;
 import com.example.roleAuthentication.dto.AuthResponseDto;
 import com.example.roleAuthentication.dto.LoginRequestDto;
 import com.example.roleAuthentication.dto.RegisterRequestDto;
 import com.example.roleAuthentication.entity.User;
 import com.example.roleAuthentication.model.Role;
+import com.example.roleAuthentication.repository.BlacklistedTokenRepository;
 import com.example.roleAuthentication.repository.UserRepository;
 import com.example.roleAuthentication.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.UUID;
 
 import static com.example.roleAuthentication.model.SecurityConstants.LOCK_TIME_MINUTES;
@@ -28,6 +32,9 @@ import static com.example.roleAuthentication.model.SecurityConstants.MAX_FAILED_
 public class AuthController {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private BlacklistedTokenRepository blacklistedTokenRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -108,4 +115,29 @@ public class AuthController {
 
         return response;
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new GlobalExceptionHandler.UnauthorizedException("Token missing");
+        }
+
+        String token = authHeader.substring(7);
+        LocalDateTime expiry = jwtUtil.extractExpiration(token)
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        BlacklistedToken blacklistedToken = new BlacklistedToken();
+        blacklistedToken.setToken(token);
+        blacklistedToken.setExpiryTime(expiry);
+
+        blacklistedTokenRepository.save(blacklistedToken);
+
+        return ResponseEntity.ok("Logged out successfully");
+    }
+
 }

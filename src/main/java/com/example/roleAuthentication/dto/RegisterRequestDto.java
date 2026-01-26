@@ -26,6 +26,5 @@ public class RegisterRequestDto {
     @Length(min = 6)
     public String password;
 
-    @NotBlank
     public Role role;
 }
