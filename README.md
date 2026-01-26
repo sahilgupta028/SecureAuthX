@@ -1,4 +1,4 @@
-# 🔐 Spring Boot Role-Based Authentication System (JWT)
+# 🔐 SecureAuthX - Spring Boot Role-Based Authentication System (JWT)
 
 A **production-grade Role-Based Authentication & Authorization system** built using **Spring Boot, Spring Security, JWT**, and **MongoDB/MySQL**.
 This project follows **enterprise-level security standards** and demonstrates real-world backend architecture including secure authentication flows, role-based access, centralized exception handling, and stateless security design.
