@@ -46,7 +46,7 @@ This project demonstrates a **complete Role-Based Authentication & Authorization
 * Spring Security
 * JWT (jjwt)
 * Spring Data JPA
-* MySQL
+* MongoDB
 * Postman
 
 ---
@@ -54,11 +54,11 @@ This project demonstrates a **complete Role-Based Authentication & Authorization
 ## 📂 Project Structure
 
 ```
-com.example.security
+com.example.roleAuthentication
 │
 ├── config
 │   ├── SecurityConfig.java
-│   ├── PasswordConfig.java
+│   └── PasswordConfig.java
 │
 ├── controller
 │   ├── AuthController.java
@@ -66,11 +66,13 @@ com.example.security
 │   └── UserController.java
 │
 ├── entity
+│   ├── BlacklistedToken.java
 │   ├── User.java
 │   └── ErrorResponse.java
 │
 ├── repository
-│   ├── UserRepository.java
+│   ├── BlacklistedTokenRepository.java
+│   └── UserRepository.java
 │
 ├── util
 │   └── JwtUtil.java
@@ -79,6 +81,7 @@ com.example.security
 │   └── JwtAuthFilter.java
 │
 ├── model
+│   ├── SecurityConstants.java
 │   └── Role.java
 │
 ├── exception
