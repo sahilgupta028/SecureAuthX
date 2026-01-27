@@ -375,6 +375,7 @@ This **defense-in-depth strategy** ensures that:
 * Centralized exception handling
 * Jakarta Bean Validation for input validation
 * Secure JWT request filtering
+* API rate limiting
 
 ---
 
@@ -394,7 +395,6 @@ This **defense-in-depth strategy** ensures that:
 * Token revocation strategy
 * OAuth2 & social login
 * Multi-Factor Authentication (MFA)
-* API rate limiting
 * Audit logging
 
 ---
