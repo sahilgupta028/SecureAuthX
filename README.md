@@ -1,6 +1,6 @@
 # 🔐 SecureAuthX – Spring Boot Role-Based Authentication System (JWT)
 
-SecureAuthX is a **production-grade Role-Based Authentication & Authorization system** built using **Spring Boot, Spring Security, JWT**, and **MongoDB / MySQL**.
+SecureAuthX is a **production-grade Role-Based Authentication & Authorization system** built using **Spring Boot, Spring Security, JWT**, and **MongoDB**.
 The project is designed following **enterprise-level backend architecture**, focusing on security, scalability, clean layering, and real-world use cases.
 
 > 🚀 Suitable for **real-world applications**, **enterprise backend services**, and **placement / interview-ready projects**.
@@ -69,11 +69,68 @@ The project is designed following **enterprise-level backend architecture**, foc
 | Framework      | Spring Boot               |
 | Security       | Spring Security           |
 | Authentication | JWT (jjwt)                |
-| Data Access    | Spring Data (JPA / Mongo) |
-| Database       | MongoDB / MySQL           |
+| Data Access    | Spring Data (MongoDB)     |
+| Build Tool     | Maven                     |
+| Database       | MongoDB                   |
 | API Testing    | Postman                   |
 
 ---
+
+## 🔄 How Security Works (High‑Level Flow)
+
+```text
+┌──────────────────┐
+│      Client      │
+│ (Postman / UI)   │
+└─────────┬────────┘
+          │ 1️⃣ Login (email + password)
+          ▼
+┌──────────────────┐
+│   Auth API       │
+│  /api/auth/login │
+└─────────┬────────┘
+          │ 2️⃣ Credentials verified (BCrypt)
+          ▼
+┌──────────────────┐
+│   JWT Issued     │
+│  HS256 (256-bit) │
+└─────────┬────────┘
+          │
+          │  Authorization: Bearer <JWT>
+          ▼
+┌───────────────────────────────────────────────────────────┐
+│           Spring Security Filter Chain                    │
+│                                                           │
+│   ┌───────────────────────────────────────────────────┐   │
+│   │               JwtAuthFilter                       │   │
+│   │                                                   │   │
+│   │  • Extract JWT from Authorization header          │   │
+│   │  • Validate signature & expiration                │   │
+│   │  • Check token blacklist (logout protection)      │   │
+│   │  • Load user details & roles                      │   │
+│   │  • Set Authentication in SecurityContext          │   │
+│   └───────────────────────────────────────────────────┘   │
+│                                                           │
+└─────────┬─────────────────────────────────────────────────┘
+          │
+          ▼
+┌──────────────────┐
+│  Controller      │
+│ (@PreAuthorize)  │
+└─────────┬────────┘
+          │
+          ▼
+┌──────────────────┐
+│   Service Layer  │
+│ (Business Logic) │
+└─────────┬────────┘
+          │
+          ▼
+┌──────────────────┐
+│    Database      │
+│ (Users / Tokens) │
+└──────────────────┘
+```
 
 ## 📂 Project Architecture
 
