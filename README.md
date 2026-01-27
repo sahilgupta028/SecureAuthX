@@ -70,6 +70,7 @@ The project is designed following **enterprise-level backend architecture**, foc
 | Security       | Spring Security           |
 | Authentication | JWT (jjwt)                |
 | Data Access    | Spring Data (MongoDB)     |
+| Build Tool     | Maven                     |
 | Database       | MongoDB                   |
 | API Testing    | Postman                   |
 
