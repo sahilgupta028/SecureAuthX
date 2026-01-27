@@ -250,6 +250,113 @@ com.example.roleAuthentication
 }
 ```
 
+## 🔒 Security Defense-in-Depth (Rate Limiting + Account Lockout)
+
+SecureAuthX uses a **layered security approach** to protect authentication endpoints and user accounts. Two independent but complementary mechanisms are implemented:
+
+---
+
+### 🧱 1. API Rate Limiting (Endpoint-Level Protection)
+
+**Where it works:**
+
+* Spring Security Filter Layer (`RateLimitFilter`)
+
+**How it works:**
+
+* Limits the number of requests per IP address
+* Applied **before** authentication logic
+* Prevents excessive requests from bots or scripts
+
+**Configured Rule:**
+
+* Max **5 requests per minute per IP** on `/api/auth/login`
+
+**If limit exceeded:**
+
+```http
+HTTP 429 – Too Many Requests
+```
+
+**What it protects against:**
+
+* Brute-force attacks
+* Credential stuffing
+* Automated bot traffic
+
+---
+
+### 🔐 2. Account Lockout (User-Level Protection)
+
+**Where it works:**
+
+* Service / Business Logic Layer (`AuthService`)
+
+**How it works:**
+
+* Tracks failed login attempts **per user account**
+* Independent of request speed
+
+**Configured Rule:**
+
+* Account is locked after **5 consecutive incorrect passwords**
+* Lock is time-bound and auto-unlocked after a cooldown period
+
+**If account is locked:**
+
+```http
+HTTP 401 – Unauthorized
+Account locked due to multiple failed login attempts
+```
+
+**What it protects against:**
+
+* Targeted attacks on a specific user
+* Manual password guessing
+
+---
+
+### 🔄 Combined Security Flow (Defense-in-Depth)
+
+```
+Client Request
+      │
+      ▼
+RateLimitFilter (IP-based)
+      │
+      ├─ Too many requests? → 429 (Blocked)
+      │
+      ▼
+AuthController
+      ▼
+AuthService
+      │
+      ├─ Wrong password? → increment failedAttempts
+      ├─ failedAttempts ≥ 5 → lock account
+      ▼
+Authentication Result
+```
+
+---
+
+### 🧠 Why Both Are Needed
+
+| Scenario           | Rate Limiter     | Account Lock      |
+| ------------------ | ----------------- | ---------------- |
+| Bot attack (fast)  | ✅ Blocks        | ❌ Not triggered |
+| Slow manual attack | ❌ Not triggered | ✅ Locks account |
+| Aggressive attack  | ✅ Blocks        | ✅ Locks account |
+
+This **defense-in-depth strategy** ensures that:
+
+* APIs are protected at the network level
+* User accounts are protected at the business logic level
+* No single security control is relied upon
+
+> This is a **production-grade security pattern** commonly used in enterprise authentication systems.
+
+---
+
 ---
 
 ## 🔒 Security Best Practices Implemented
