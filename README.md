@@ -141,6 +141,10 @@ com.example.roleAuthentication
 │   ├── SecurityConfig.java
 │   └── PasswordConfig.java
 │
+├── constants
+│   ├── RateLimitConstants.java
+│   └── SecurityConstants.java
+│
 ├── controller
 │   ├── AuthController.java
 │   ├── UserController.java
@@ -169,6 +173,7 @@ com.example.roleAuthentication
 │   └── AdminDashboardResponseDto.java
 │
 ├── filter
+│   ├── RateLimitFilter.java
 │   └── JwtAuthFilter.java
 │
 ├── util
@@ -176,7 +181,7 @@ com.example.roleAuthentication
 │
 ├── model
 │   ├── Role.java
-│   └── SecurityConstants.java
+│   └── RateLimit.java
 │
 └── exception
     ├── GlobalExceptionHandler.java
