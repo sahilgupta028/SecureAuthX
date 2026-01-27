@@ -1,167 +1,191 @@
-# 🔐 Spring Boot Role-Based Authentication (JWT)
+# 🔐 SecureAuthX – Spring Boot Role-Based Authentication System (JWT)
 
-This project demonstrates a **complete Role-Based Authentication & Authorization system** built with **Spring Boot, Spring Security, JWT**, and **MySQL**. It includes **custom error responses**, **secure password handling**, and is fully **testable using Postman**.
+SecureAuthX is a **production-grade Role-Based Authentication & Authorization system** built using **Spring Boot, Spring Security, JWT**, and **MongoDB / MySQL**.
+The project is designed following **enterprise-level backend architecture**, focusing on security, scalability, clean layering, and real-world use cases.
+
+> 🚀 Suitable for **real-world applications**, **enterprise backend services**, and **placement / interview-ready projects**.
 
 ---
 
-## 🚀 Features Implemented
+## ✨ Key Highlights
 
-### ✅ Authentication
+* Stateless authentication using JWT
+* Role-based access control (USER / ADMIN)
+* Account lockout on multiple failed login attempts
+* JWT token blacklisting on logout
+* Centralized exception handling with clean API responses
+* Proper Controller–Service–Repository separation
 
-* User **Registration**
-* User **Login** with JWT
-* Password encryption using **BCrypt**
+---
+
+## 🚀 Core Capabilities
+
+### 🔑 Authentication
+
+* Secure user **registration & login**
+* **BCrypt password hashing** (no plain-text storage)
 * Email uniqueness validation
+* JWT access token generation
 
-### ✅ Authorization
+### 🧩 Authorization
 
-* **Role-based access control** (e.g. `ROLE_USER`, `ROLE_ADMIN`)
+* **Role-Based Access Control (RBAC)** (`ROLE_USER`, `ROLE_ADMIN`)
 * Method-level security using `@PreAuthorize`
-* Secure endpoint protection using JWT
+* Endpoint-level access protection via Spring Security
 
-### ✅ Security
+### 🛡 Security Architecture
 
-* Stateless authentication (`STATELESS` session policy)
-* Custom JWT filter (`JwtAuthFilter`)
-* Secure **256-bit JWT signing key** (RFC 7518 compliant)
+* Stateless authentication (`SessionCreationPolicy.STATELESS`)
+* Custom JWT authentication filter (`JwtAuthFilter`)
+* RFC 7518 compliant **256-bit JWT signing key (HS256)**
+* Token tamper detection and validation
 
-### ✅ Error Handling (Custom Responses)
+### 🔐 Advanced Security Features
+
+* Account lockout after configurable failed login attempts
+* Automatic account unlock after lock duration
+* JWT token blacklisting on logout
+* Secure request filtering before controller execution
+
+### ⚠️ Error Handling
 
 * Custom authentication error response (401)
-* Custom access denied response (403)
+* Custom authorization error response (403)
 * Global exception handling using `@ControllerAdvice`
-* Consistent error JSON format
+* Consistent and sanitized error response format
 
-### ✅ Testing
+### 🧪 API Testing
 
-* Fully testable via **Postman**
-* Step-by-step API flow (Register → Login → Access Protected APIs)
+* Fully testable using **Postman**
+* End-to-end flow: Register → Login → Access Secured APIs
 
 ---
 
 ## 🧱 Tech Stack
 
-* Java 17+
-* Spring Boot
-* Spring Security
-* JWT (jjwt)
-* Spring Data JPA
-* MySQL
-* Postman
+| Layer          | Technology                |
+| -------------- | ------------------------- |
+| Language       | Java 17+                  |
+| Framework      | Spring Boot               |
+| Security       | Spring Security           |
+| Authentication | JWT (jjwt)                |
+| Data Access    | Spring Data (JPA / Mongo) |
+| Database       | MongoDB / MySQL           |
+| API Testing    | Postman                   |
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Architecture
 
 ```
-com.example.security
+com.example.roleAuthentication
 │
 ├── config
 │   ├── SecurityConfig.java
-│   ├── PasswordConfig.java
+│   └── PasswordConfig.java
 │
 ├── controller
 │   ├── AuthController.java
-│   ├── AdminController.java
-│   └── UserController.java
+│   ├── UserController.java
+│   └── AdminController.java
+│
+├── service
+│   ├── AuthService.java
+│   ├── UserService.java
+│   └── AdminService.java
 │
 ├── entity
 │   ├── User.java
+│   ├── BlacklistedToken.java
 │   └── ErrorResponse.java
 │
 ├── repository
 │   ├── UserRepository.java
+│   └── BlacklistedTokenRepository.java
 │
-├── util
-│   └── JwtUtil.java
+├── dto
+│   ├── RegisterRequestDto.java
+│   ├── LoginRequestDto.java
+│   ├── AuthResponseDto.java
+│   ├── UserProfileResponseDto.java
+│   ├── UserSummaryResponseDto.java
+│   └── AdminDashboardResponseDto.java
 │
 ├── filter
 │   └── JwtAuthFilter.java
 │
+├── util
+│   └── JwtUtil.java
+│
 ├── model
-│   └── Role.java
+│   ├── Role.java
+│   └── SecurityConstants.java
 │
-├── exception
-│   ├── GlobalExceptionHandler.java
-│   ├── JwtAccessDeniedHandler.java
-│   ├── JwtAuthEntryPoint.java
-│   └── ValidationExceptionHandler.java
-│
-└── dto
-    ├── RegisterRequestDto.java
-    ├── LoginRequestDto.java
-    └── AuthResponseDto.java
+└── exception
+    ├── GlobalExceptionHandler.java
+    ├── JwtAuthEntryPoint.java
+    ├── JwtAccessDeniedHandler.java
+    └── ValidationExceptionHandler.java
 ```
 
 ---
 
-## 🔑 API Endpoints
+## 🔑 API Endpoints Overview
 
-### 🔹 Register User
+### 📝 Authentication APIs
 
-`POST /api/auth/register`
+| Method | Endpoint             | Description              |
+| ------ | -------------------- | ------------------------ |
+| POST   | `/api/auth/register` | Register new user        |
+| POST   | `/api/auth/login`    | Login & get JWT          |
+| POST   | `/api/auth/logout`   | Logout & blacklist token |
+
+#### Register User
 
 ```json
 {
   "name": "Sahil",
   "email": "sahil@gmail.com",
-  "password": "password123"
+  "password": "password123",
+  "role": "ROLE_USER"
 }
 ```
 
----
-
-### 🔹 Login User
-
-`POST /api/auth/login`
+#### Login Response
 
 ```json
 {
-  "email": "sahil@gmail.com",
-  "password": "password123"
+  "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
+  "refreshToken": "uuid-string"
 }
 ```
 
-📌 Response:
+---
+
+### 👤 User APIs (USER / ADMIN)
+
+| Method | Endpoint            | Description                |
+| ------ | ------------------- | -------------------------- |
+| GET    | `/api/user/profile` | Get logged-in user profile |
+
+---
+
+### 🛑 Admin APIs (ADMIN Only)
+
+| Method | Endpoint                       | Description             |
+| ------ | ------------------------------ | ----------------------- |
+| GET    | `/api/admin/dashboard`         | Admin dashboard metrics |
+| GET    | `/api/admin/users`             | List all users          |
+| PUT    | `/api/admin/users/{id}/lock`   | Lock user account       |
+| PUT    | `/api/admin/users/{id}/unlock` | Unlock user account     |
+
+---
+
+## ❌ Standard Error Response Format
 
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiJ9..."
-}
-```
-
----
-
-### 🔹 Access Protected Endpoint
-
-Add Header in Postman:
-
-```
-Authorization: Bearer <JWT_TOKEN>
-```
-
-Example:
-`GET /api/user/profile`
-
----
-
-### 🔹 Admin Only Endpoint
-
-```java
-@PreAuthorize("hasRole('ADMIN')")
-@GetMapping("/admin")
-public String adminOnly() {
-    return "Admin Access Granted";
-}
-```
-
----
-
-## ❌ Custom Error Response Format
-
-```json
-{
-  "timestamp": "2026-01-25T18:21:08",
+  "timestamp": "2026-01-27T10:56:55",
   "status": 401,
   "error": "Unauthorized",
   "message": "Invalid JWT token",
@@ -171,37 +195,47 @@ public String adminOnly() {
 
 ---
 
-## 🧪 How to Test in Postman (Flow)
+## 🔒 Security Best Practices Implemented
 
-1. **Register User** → `/api/auth/register`
-2. **Login** → `/api/auth/login`
-3. Copy JWT token
-4. Add token in Authorization Header
-5. Access secured APIs
-
----
-
-## 🔒 Security Best Practices Followed
-
-* Encrypted passwords (BCrypt)
-* JWT signed with 256-bit secret key
-* No session storage
-* Role-based access checks
+* BCrypt password hashing with salting
+* No plain-text password storage or logging
+* Stateless JWT authentication
+* Secure HS256 token signing (256-bit secret)
+* Role-based API authorization
+* Account lockout on multiple failed login attempts
+* JWT token blacklisting on logout
 * Centralized exception handling
+* Jakarta Bean Validation for input validation
+* Secure JWT request filtering
 
 ---
 
-## 📌 Future Enhancements
+## 🧪 Postman Testing Flow
 
-* Refresh Token flow
-* Token revocation
-* Account lock on failed attempts
-* OAuth2 / Social Login
+1. Register user → `/api/auth/register`
+2. Login → `/api/auth/login`
+3. Copy JWT access token
+4. Add `Authorization: Bearer <TOKEN>` header
+5. Access secured USER / ADMIN APIs
+
+---
+
+## 📌 Roadmap / Future Enhancements
+
+* Refresh token persistence
+* Token revocation strategy
+* OAuth2 & social login
+* Multi-Factor Authentication (MFA)
+* API rate limiting
+* Audit logging
 
 ---
 
 ## 👨‍💻 Author
 
 **Sahil Gupta**
+Backend Developer | Java | Spring Boot | Security Architecture
 
-Feel free to extend this project or integrate it into real-world applications 🚀
+---
+
+⭐ If you find this project useful, consider giving it a star and using it as a production-ready authentication template.
