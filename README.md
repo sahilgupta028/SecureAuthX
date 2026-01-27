@@ -71,6 +71,11 @@ com.example.roleAuthentication
 │   ├── AdminController.java
 │   └── UserController.java
 │
+├── service
+│   ├── AuthService.java
+│   ├── AdminService.java
+│   └── UserService.java
+│
 ├── entity
 │   ├── BlacklistedToken.java
 │   ├── User.java
@@ -99,6 +104,9 @@ com.example.roleAuthentication
 └── dto
     ├── RegisterRequestDto.java
     ├── LoginRequestDto.java
+    ├── AdminDashboardResponseDto.java
+    ├── UserProfileResponseDto.java
+    ├── UserSummaryResponseDto.java
     └── AuthResponseDto.java
 ```
 
