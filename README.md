@@ -249,6 +249,7 @@ com.example.roleAuthentication
   "path": "/api/user/profile"
 }
 ```
+---
 
 ## 🔒 Security Defense-in-Depth (Rate Limiting + Account Lockout)
 
@@ -354,8 +355,6 @@ This **defense-in-depth strategy** ensures that:
 * No single security control is relied upon
 
 > This is a **production-grade security pattern** commonly used in enterprise authentication systems.
-
----
 
 ---
 
