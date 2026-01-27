@@ -3,6 +3,7 @@ package com.example.roleAuthentication.config;
 import com.example.roleAuthentication.exception.JwtAccessDeniedHandler;
 import com.example.roleAuthentication.exception.JwtAuthEntryPoint;
 import com.example.roleAuthentication.filter.JwtAuthFilter;
+import com.example.roleAuthentication.filter.RateLimitFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
+
+    @Autowired
+    private RateLimitFilter rateLimitFilter;
 
     @Autowired
     private JwtAuthEntryPoint jwtAuthEntryPoint;
@@ -39,6 +43,8 @@ public class SecurityConfig {
                         .authenticationEntryPoint(jwtAuthEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
+                .addFilterBefore(rateLimitFilter,
+                        UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter,
                         UsernamePasswordAuthenticationFilter.class);
 

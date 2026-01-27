@@ -1,4 +1,4 @@
-package com.example.roleAuthentication.model;
+package com.example.roleAuthentication.constants;
 
 public class SecurityConstants {
     public static final int MAX_FAILED_ATTEMPTS = 5;

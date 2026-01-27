@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
 
-import static com.example.roleAuthentication.model.SecurityConstants.LOCK_TIME_MINUTES;
-import static com.example.roleAuthentication.model.SecurityConstants.MAX_FAILED_ATTEMPTS;
+import static com.example.roleAuthentication.constants.SecurityConstants.LOCK_TIME_MINUTES;
+import static com.example.roleAuthentication.constants.SecurityConstants.MAX_FAILED_ATTEMPTS;
 
 @Service
 public class AuthService {
