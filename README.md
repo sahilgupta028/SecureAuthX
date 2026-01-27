@@ -69,8 +69,8 @@ The project is designed following **enterprise-level backend architecture**, foc
 | Framework      | Spring Boot               |
 | Security       | Spring Security           |
 | Authentication | JWT (jjwt)                |
-| Data Access    | Spring Data (JPA / Mongo) |
-| Database       | MongoDB / MySQL           |
+| Data Access    | Spring Data (Mongo)       |
+| Database       | MongoDB                   |
 | API Testing    | Postman                   |
 
 ---
