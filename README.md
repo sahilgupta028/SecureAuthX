@@ -462,7 +462,6 @@ Authorization: Bearer <ADMIN_JWT>
 * Token revocation strategy
 * OAuth2 & social login
 * Multi-Factor Authentication (MFA)
-* Audit logging
 
 ---
 
