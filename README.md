@@ -363,6 +363,72 @@ This **defense-in-depth strategy** ensures that:
 
 ---
 
+## 📝 Audit Logging (Security & Compliance)
+
+SecureAuthX implements **centralized audit logging** to track all critical security and user actions. Audit logs are stored in **MongoDB**, ensuring immutability, scalability, and fast querying for security reviews and compliance.
+
+### 🎯 Why Audit Logs Matter
+
+Audit logging helps in:
+
+* Detecting suspicious or malicious activity
+* Investigating security incidents
+* Meeting compliance and enterprise security requirements
+* Maintaining a traceable history of sensitive operations
+
+### 🔍 What Actions Are Logged
+
+The system records audit events for the following actions:
+
+| Action              | Description                                           |
+| ------------------- | ----------------------------------------------------- |
+| `REGISTER_SUCCESS`  | Successful user registration                          |
+| `REGISTER_FAILED`   | Registration failed (email exists, validation errors) |
+| `LOGIN_SUCCESS`     | Successful authentication                             |
+| `LOGIN_FAILED`      | Invalid credentials attempt                           |
+| `ACCOUNT_LOCKED`    | Account locked after max failed attempts              |
+| `LOGOUT`            | User logout (JWT blacklisted)                         |
+| `ADMIN_LOCK_USER`   | Admin manually locks a user                           |
+| `ADMIN_UNLOCK_USER` | Admin unlocks a user account                          |
+
+### 🗂 Audit Log Data Model (MongoDB)
+
+```json
+{
+  "id": "65f12e9a4c9eab1234567890",
+  "username": "sahil@gmail.com",
+  "action": "LOGIN_SUCCESS",
+  "ipAddress": "192.168.1.10",
+  "userAgent": "PostmanRuntime/7.36.0",
+  "endpoint": "/api/auth/login",
+  "timestamp": "2026-01-27T21:15:32"
+}
+```
+
+### 🏗 Architecture Placement
+
+```text
+Controller  ──▶  Service Layer  ──▶  AuditLogService  ──▶  MongoDB
+                        │
+                        └── Business Logic (Auth / Admin)
+```
+
+### 🔐 Security & Privacy Considerations
+
+* No passwords or JWT tokens are stored in audit logs
+* IP address and User-Agent are captured for traceability
+* Logs are append-only (no update/delete operations)
+* Suitable for SIEM and monitoring integrations
+
+### 🧪 Viewing Audit Logs
+
+```http
+GET /api/admin/audit-logs
+Authorization: Bearer <ADMIN_JWT>
+```
+
+---
+
 ## 🔒 Security Best Practices Implemented
 
 * BCrypt password hashing with salting
@@ -376,6 +442,7 @@ This **defense-in-depth strategy** ensures that:
 * Jakarta Bean Validation for input validation
 * Secure JWT request filtering
 * API rate limiting
+* Audit Logging
 
 ---
 
