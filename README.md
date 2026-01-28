@@ -240,6 +240,8 @@ com.example.roleAuthentication
 | GET    | `/api/admin/users`             | List all users          |
 | PUT    | `/api/admin/users/{id}/lock`   | Lock user account       |
 | PUT    | `/api/admin/users/{id}/unlock` | Unlock user account     |
+| GET    | `/api/admin/audit-logs`        | List all Audits         |
+| GET    | `/api/admin/audit-logs/user/{email}` | Get Audit of particular user        |
 
 ---
 
