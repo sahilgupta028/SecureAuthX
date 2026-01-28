@@ -1,9 +1,13 @@
 package com.example.roleAuthentication.service;
 
 import com.example.roleAuthentication.dto.AdminDashboardResponseDto;
+import com.example.roleAuthentication.dto.AuditLogResponseDto;
 import com.example.roleAuthentication.dto.UserSummaryResponseDto;
+import com.example.roleAuthentication.entity.AuditLog;
 import com.example.roleAuthentication.entity.User;
 import com.example.roleAuthentication.exception.GlobalExceptionHandler;
+import com.example.roleAuthentication.model.AuditAction;
+import com.example.roleAuthentication.repository.AuditLogRepository;
 import com.example.roleAuthentication.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +17,17 @@ import java.util.List;
 public class AdminService {
 
     private final UserRepository userRepository;
+    private final AuditLogRepository auditLogRepository;
 
-    public AdminService(UserRepository userRepository) {
+    public AdminService(
+            UserRepository userRepository,
+            AuditLogRepository auditLogRepository
+    ) {
         this.userRepository = userRepository;
+        this.auditLogRepository = auditLogRepository;
     }
+
+    /* ===================== DASHBOARD ===================== */
 
     public AdminDashboardResponseDto getDashboardData() {
 
@@ -32,13 +43,15 @@ public class AdminService {
         return response;
     }
 
+    /* ===================== USERS ===================== */
+
     public List<UserSummaryResponseDto> getAllUsers() {
 
         return userRepository.findAll()
                 .stream()
                 .map(user -> {
                     UserSummaryResponseDto dto = new UserSummaryResponseDto();
-                    dto.setId(String.valueOf(user.getId()));
+                    dto.setId(user.getId());
                     dto.setName(user.getName());
                     dto.setEmail(user.getEmail());
                     dto.setRole(user.getRole().name());
@@ -70,5 +83,45 @@ public class AdminService {
 
         userRepository.save(user);
     }
-}
 
+    /* ===================== AUDIT LOGS ===================== */
+
+    public List<AuditLogResponseDto> getAllAuditLogs() {
+
+        return auditLogRepository.findAll()
+                .stream()
+                .map(this::mapToDto)
+                .toList();
+    }
+
+    public List<AuditLogResponseDto> getAuditLogsByUser(String username) {
+
+        return auditLogRepository.findByUsername(username)
+                .stream()
+                .map(this::mapToDto)
+                .toList();
+    }
+
+    public List<AuditLogResponseDto> getAuditLogsByAction(AuditAction action) {
+
+        return auditLogRepository.findByAction(action)
+                .stream()
+                .map(this::mapToDto)
+                .toList();
+    }
+
+    /* ===================== MAPPER ===================== */
+
+    private AuditLogResponseDto mapToDto(AuditLog log) {
+
+        AuditLogResponseDto dto = new AuditLogResponseDto();
+        dto.setId(log.getId());
+        dto.setUsername(log.getUsername());
+        dto.setAction(log.getAction());
+        dto.setIpAddress(log.getIpAddress());
+        dto.setEndpoint(log.getEndpoint());
+        dto.setTimestamp(log.getTimestamp());
+
+        return dto;
+    }
+}

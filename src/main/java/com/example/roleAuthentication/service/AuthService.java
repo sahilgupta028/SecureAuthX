@@ -6,16 +6,19 @@ import com.example.roleAuthentication.dto.RegisterRequestDto;
 import com.example.roleAuthentication.entity.BlacklistedToken;
 import com.example.roleAuthentication.entity.User;
 import com.example.roleAuthentication.exception.GlobalExceptionHandler;
+import com.example.roleAuthentication.model.AuditAction;
 import com.example.roleAuthentication.model.Role;
 import com.example.roleAuthentication.repository.BlacklistedTokenRepository;
 import com.example.roleAuthentication.repository.UserRepository;
 import com.example.roleAuthentication.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.example.roleAuthentication.constants.SecurityConstants.LOCK_TIME_MINUTES;
@@ -28,39 +31,60 @@ public class AuthService {
     private final BlacklistedTokenRepository blacklistedTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final AuditLogService auditLogService;
 
     public AuthService(
             UserRepository userRepository,
             BlacklistedTokenRepository blacklistedTokenRepository,
             PasswordEncoder passwordEncoder,
-            JwtUtil jwtUtil
+            JwtUtil jwtUtil,
+            AuditLogService auditLogService
     ) {
         this.userRepository = userRepository;
         this.blacklistedTokenRepository = blacklistedTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.auditLogService = auditLogService;
     }
 
-    public void register(RegisterRequestDto req) {
+    /* ===================== REGISTER ===================== */
 
-        if (userRepository.findByEmail(req.email).isPresent()) {
+    public void register(RegisterRequestDto req, HttpServletRequest request) {
+
+        if (userRepository.findByEmail(req.getEmail()).isPresent()) {
             throw new GlobalExceptionHandler.BadRequestException("Email already exists");
         }
 
         User user = new User();
-        user.setName(req.name);
-        user.setEmail(req.email);
-        user.setPassword(passwordEncoder.encode(req.password));
-        user.setRole(req.role == null ? Role.ROLE_USER : req.role);
+        user.setName(req.getName());
+        user.setEmail(req.getEmail());
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
+        user.setRole(req.getRole() == null ? Role.ROLE_USER : req.getRole());
+        user.setFailedAttempts(0);
+        user.setAccountLocked(false);
 
         userRepository.save(user);
+
+        auditLogService.log(
+                user.getEmail(),
+                String.valueOf(AuditAction.REGISTER_SUCCESS),
+                request
+        );
     }
 
-    public AuthResponseDto login(LoginRequestDto req) {
+    /* ===================== LOGIN ===================== */
 
-        User user = userRepository.findByEmail(req.email)
-                .orElseThrow(() ->
-                        new GlobalExceptionHandler.ResourceNotFoundException("User not found"));
+    public AuthResponseDto login(LoginRequestDto req, HttpServletRequest request) {
+
+        User user = userRepository.findByEmail(req.getEmail())
+                .orElseThrow(() -> {
+                    auditLogService.log(
+                            req.getEmail(),
+                            String.valueOf(AuditAction.LOGIN_FAILED),
+                            request
+                    );
+                    return new GlobalExceptionHandler.UnauthorizedException("Invalid email or password");
+                });
 
         // 🔒 Account lock check
         if (user.isAccountLocked()) {
@@ -71,7 +95,14 @@ public class AuthService {
                             .isBefore(LocalDateTime.now())) {
 
                 unlockAccount(user);
+
             } else {
+                auditLogService.log(
+                        user.getEmail(),
+                        String.valueOf(AuditAction.ACCOUNT_LOCKED),
+                        request
+                );
+
                 throw new GlobalExceptionHandler.UnauthorizedException(
                         "Account locked due to multiple failed attempts. Try again later."
                 );
@@ -79,8 +110,16 @@ public class AuthService {
         }
 
         // ❌ Invalid password
-        if (!passwordEncoder.matches(req.password, user.getPassword())) {
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+
             handleFailedAttempt(user);
+
+            auditLogService.log(
+                    user.getEmail(),
+                    String.valueOf(AuditAction.LOGIN_FAILED),
+                    request
+            );
+
             throw new GlobalExceptionHandler.UnauthorizedException("Invalid email or password");
         }
 
@@ -88,11 +127,19 @@ public class AuthService {
         resetSecurityCounters(user);
 
         AuthResponseDto response = new AuthResponseDto();
-        response.accessToken = jwtUtil.generateToken(user);
-        response.refreshToken = UUID.randomUUID().toString();
+        response.setAccessToken(jwtUtil.generateToken(user));
+        response.setRefreshToken(UUID.randomUUID().toString());
+
+        auditLogService.log(
+                user.getEmail(),
+                String.valueOf(AuditAction.LOGIN_SUCCESS),
+                request
+        );
 
         return response;
     }
+
+    /* ===================== LOGOUT ===================== */
 
     public void logout(HttpServletRequest request) {
 
@@ -103,6 +150,7 @@ public class AuthService {
         }
 
         String token = authHeader.substring(7);
+
         LocalDateTime expiry = jwtUtil.extractExpiration(token)
                 .toInstant()
                 .atZone(ZoneId.systemDefault())
@@ -113,6 +161,16 @@ public class AuthService {
         blacklistedToken.setExpiryTime(expiry);
 
         blacklistedTokenRepository.save(blacklistedToken);
+
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                .getName();
+
+        auditLogService.log(
+                username,
+                String.valueOf(AuditAction.LOGOUT),
+                request
+        );
     }
 
     /* ===================== PRIVATE HELPERS ===================== */
@@ -137,8 +195,8 @@ public class AuthService {
     }
 
     private void unlockAccount(User user) {
-        user.setAccountLocked(false);
         user.setFailedAttempts(0);
+        user.setAccountLocked(false);
         user.setLockTime(null);
         userRepository.save(user);
     }

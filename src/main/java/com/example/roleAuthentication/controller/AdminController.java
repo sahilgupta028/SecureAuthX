@@ -1,6 +1,7 @@
 package com.example.roleAuthentication.controller;
 
 import com.example.roleAuthentication.dto.AdminDashboardResponseDto;
+import com.example.roleAuthentication.dto.AuditLogResponseDto;
 import com.example.roleAuthentication.dto.UserSummaryResponseDto;
 import com.example.roleAuthentication.service.AdminService;
 import org.springframework.http.ResponseEntity;
@@ -49,5 +50,15 @@ public class AdminController {
     public ResponseEntity<String> unlockUser(@PathVariable String userId) {
         adminService.unlockUser(userId);
         return ResponseEntity.ok("User account unlocked successfully");
+    }
+
+    @GetMapping("/audit-logs")
+    public List<AuditLogResponseDto> getAllAuditLogs() {
+        return adminService.getAllAuditLogs();
+    }
+
+    @GetMapping("/audit-logs/user/{email}")
+    public List<AuditLogResponseDto> getAuditLogsByUser(@PathVariable String email) {
+        return adminService.getAuditLogsByUser(email);
     }
 }
