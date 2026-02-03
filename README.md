@@ -153,21 +153,26 @@ com.example.roleAuthentication
 ├── service
 │   ├── AuthService.java
 │   ├── UserService.java
+│   ├── RateLimitService.java
+│   ├── AuditLogService.java
 │   └── AdminService.java
 │
 ├── entity
 │   ├── User.java
+│   ├── AuditLog.java
 │   ├── BlacklistedToken.java
 │   └── ErrorResponse.java
 │
 ├── repository
 │   ├── UserRepository.java
+│   ├── AuditLogRepository.java
 │   └── BlacklistedTokenRepository.java
 │
 ├── dto
 │   ├── RegisterRequestDto.java
 │   ├── LoginRequestDto.java
 │   ├── AuthResponseDto.java
+│   ├── AuditLogResponseDto.java
 │   ├── UserProfileResponseDto.java
 │   ├── UserSummaryResponseDto.java
 │   └── AdminDashboardResponseDto.java
@@ -181,6 +186,7 @@ com.example.roleAuthentication
 │
 ├── model
 │   ├── Role.java
+│   ├── AuditAction.java
 │   └── RateLimit.java
 │
 └── exception
